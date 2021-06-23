@@ -78,14 +78,24 @@ def month(valid_date: datetime) -> str:
 def day(valid_date: datetime) -> str:
     return valid_date.day
 
-def get_time(valid_date: datetime) -> str:
+def get_time(valid_date: datetime) -> datetime.time:
     return valid_date.time()
+
+# send keys ........
+def send_keys_to_xpath(xpath: str, key: str) -> bool:
+    try:
+        element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
+        element.click()
+    except:
+        print("no such element by xpath: {}".format(xpath))
+    else:
+        element.send_keys(key)
 
 # date picker ...................
 def calender_page(valid_date: datetime):
     click_xpath_element("//input[@id='js-validity_start-p_5131']")
     title_month = month(datetime.today())
-    title_year = datetime.today().year
+    title_year = str(datetime.today().year)
     req_month = month(valid_date)
     req_year = str(valid_date.year)
     while not (title_month == req_month and title_year == req_year):
@@ -110,14 +120,46 @@ def date_picker(valid_date: str):
     calender_page(valid_date)
     select_date(valid_date)
 
+# time slot selector.............
+def time_slot_selector(req_time: datetime.time):
+    try:
+        element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
+        try:
+            driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            element.click()
+            print(element.get_attribute("data-available_qty"))
+        except:
+            try:
+                button = driver.find_element_by_xpath("//div[contains(text(),'Next')]")
+                driver.execute_script("arguments[0].scrollIntoView(true);", button)
+                button.click()
+                time.sleep(3)
+                actions.move_to_element(element).click().perform()
+            except:
+                print("All slots booked")
+                exit()
+    except:
+        print("Please Enter exact available time")
+
 
 click_xpath_element("//*[@id='site-cookies']/button")
-valid_date = is_datetime_valid("2021-12-29 19:39:19")
+valid_date = is_datetime_valid("2021-06-25 17:15:00")
 product_existence("Tickets", "Brunelleschi's Dome")
 time.sleep(5)
 date_picker(valid_date)
+req_time = get_time(valid_date)
+print(type(req_time))
+# exit()
+send_keys_to_xpath("//input[@name='sku_qty_20410']", "1")
+time_slot_selector(req_time)
+# select time > calculate availabitly > if yes > send keys
 
+# element = click_xpath_element("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
 
+# actions.move_to_element(element).click().perform()
+
+# //tagName[@attrib='attrib value'][@attrib2='attrib2 value']
+# //*[@id="buy_scroller"]/div/div[2]/div[2]/div/form/div/div[3]/div[3]/div/div[2]/div[2]/div/ul/li[3]
 # ele = click_xpath_element("//div[@id='zs-ui-datepicker-div']//table[@class='zs-ui-datepicker-calendar']")
 # print("yes")
 # click_link_element(str(valid_date.day))
