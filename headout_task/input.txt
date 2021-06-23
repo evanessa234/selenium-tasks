@@ -1,0 +1,6 @@
+adult
+child
+Date to be booked (format - YYYY-mm-dd)
+Time to be booked (format - HH:MM:SS)
+Email id
+BRUNELLESCHI'S DOME
