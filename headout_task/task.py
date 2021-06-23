@@ -8,7 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import date, datetime
 
-driver = webdriver.Chrome(ChromeDriverManager().install())
+opts=webdriver.ChromeOptions()
+opts.headless=False
+
+driver = webdriver.Chrome(ChromeDriverManager().install(), options=opts)
 driver.maximize_window()
 actions = ActionChains(driver)
 
@@ -45,6 +48,7 @@ def click_link_element(link_text: str) -> bool:
 
 def product_existence(product_type: str, product_name: str) -> bool:
     try:
+        time.sleep(4)
         click_link_element("Products")
         print("1 click")
         time.sleep(4)
@@ -213,6 +217,9 @@ def main():
     login_account("k@gmail.com", "12345")
     click_xpath_element("//button[normalize-space()='Save and continue']")
     click_xpath_element("//div[@class='buy-button button xs-width-full xs-block xs-mt1 xs-mb3 xs-mx-auto md-w50p lg-mt0 lg-mb2 lg-width-full js-register-payment']")
-
+    # driver.get(url)
+    time.sleep(6)
+    driver.save_screenshot("final_result.png")
+    driver.close()
 if __name__ == "__main__":
     main()
