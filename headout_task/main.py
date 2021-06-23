@@ -82,7 +82,7 @@ def get_time(valid_date: datetime) -> datetime.time:
     return valid_date.time()
 
 # send keys ........
-def send_keys_to_xpath(xpath: str, key: str) -> bool:
+def send_keys_to_xpath(xpath: str, key) -> bool:
     try:
         element = WebDriverWait(driver,10).until(EC.visibility_of_element_located((By.XPATH, xpath)))
         element.click()
@@ -120,14 +120,56 @@ def date_picker(valid_date: str):
     calender_page(valid_date)
     select_date(valid_date)
 
+
+# # time slot selector.............
+# def time_slot_selector(req_time: datetime.time) -> str:
+#     try:
+#         element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
+#         try:
+#             driver.execute_script("arguments[0].scrollIntoView(true);", element)
+#             element.click()
+#             # print(element.get_attribute("data-available_qty"))
+#             return element.get_attribute("data-available_qty")
+#         except:
+#             try:
+#                 button = driver.find_element_by_xpath("//div[contains(text(),'Next')]")
+#                 driver.execute_script("arguments[0].scrollIntoView(true);", button)
+#                 button.click()
+#                 time.sleep(3)
+#                 actions.move_to_element(element).click().perform()
+#                 return element.get_attribute("data-available_qty")
+#             except:
+#                 print("All slots booked")
+#                 exit()
+#     except:
+#         print("Please Enter exact available time")
+#         exit()
+
+# def tickets_needed(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int) -> int:
+#     return no_of_adult + no_of_paid_child + no_of_free_child
+
+# def select_tickets(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int, available_tickets: int, no_of_tickets_needed: int) -> bool:
+#     if (available_tickets >= no_of_tickets_needed):
+#         send_keys_to_xpath("//input[@name='sku_qty_20410']", no_of_adult)
+#         send_keys_to_xpath("//input[@name='sku_qty_20408']", no_of_paid_child)
+#         send_keys_to_xpath("//input[@name='sku_qty_20556']", no_of_free_child)
+#         return True
+#     else:
+#         print("number of Tickets not available")
+#         return False
+
 # time slot selector.............
-def time_slot_selector(req_time: datetime.time) -> str:
+def time_slot_selector(req_time: datetime.time) -> int: 
     try:
-        element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
+        # element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
+        element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '16:30:00')]")
+    except:
+        print("Please Enter exact available time")
+        exit()
+    else:
         try:
             driver.execute_script("arguments[0].scrollIntoView(true);", element)
             element.click()
-            # print(element.get_attribute("data-available_qty"))
             return element.get_attribute("data-available_qty")
         except:
             try:
@@ -140,22 +182,42 @@ def time_slot_selector(req_time: datetime.time) -> str:
             except:
                 print("All slots booked")
                 exit()
-    except:
-        print("Please Enter exact available time")
-        exit()
+
+
+def tickets_needed(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int) -> int:
+    return no_of_adult + no_of_paid_child + no_of_free_child
+
+def select_tickets(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int, available_tickets: int, no_of_tickets_needed: int) -> bool:
+    if (available_tickets >= no_of_tickets_needed):
+        send_keys_to_xpath("//input[@name='sku_qty_20410']", no_of_adult)
+        send_keys_to_xpath("//input[@name='sku_qty_20408']", no_of_paid_child)
+        send_keys_to_xpath("//input[@name='sku_qty_20556']", no_of_free_child)
+        return True
+    else:
+        print("number of Tickets not available")
+        return False
 
 
 click_xpath_element("//*[@id='site-cookies']/button")
-valid_date = is_datetime_valid("2021-06-25 17:15:00")
+valid_date = is_datetime_valid("2021-06-25 16:30:00")
 product_existence("Tickets", "Brunelleschi's Dome")
 time.sleep(5)
 date_picker(valid_date)
 req_time = get_time(valid_date)
-print(type(req_time))
-# exit()
-send_keys_to_xpath("//input[@name='sku_qty_20410']", "1")
+print(req_time)
+
 n = time_slot_selector(req_time)
-print(n)
+m = tickets_needed(1, 2, 3)
+select_tickets(1, 2, 3, n, m)
+# element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '16:30:00')]")
+# print("Meeeeeeeee")
+# element.click()
+# available_tickets = time_slot_selector(req_time)
+# print(available_tickets)
+# no_of_tickets_needed = tickets_needed(1, 2, 3)
+# print(no_of_tickets_needed)
+# select_tickets(1, 2, 3, available_tickets, no_of_tickets_needed)
+# exit()
 
 
 
