@@ -91,6 +91,32 @@ def send_keys_to_xpath(xpath: str, key: str) -> bool:
     else:
         element.send_keys(key)
 
+def create_account(email: str, password: str, uname_first: str, uname_last: str):
+    click_xpath_element("//label[contains(text(),'I declare to be of legal age, to have read and und')]")
+    send_keys_to_xpath("//input[@id='register-email']", email)
+    send_keys_to_xpath("//input[@id='register-password']", password)
+    send_keys_to_xpath("//input[@id='register-password2']", password)
+    click_xpath_element("//input[@value='Create account']")
+    try:
+        alert = driver.switch_to_alert()
+        alert.accept()
+    except:
+        pass
+    send_keys_to_xpath("//input[@name='first_name']", uname_first)
+    send_keys_to_xpath("//input[@name='last_name']", uname_last)
+    click_xpath_element("//button[normalize-space()='Save']")
+    try:
+        alert = driver.switch_to_alert()
+        alert.accept()
+    except:
+        pass
+
+def login_account(email: str, password: str):
+    click_xpath_element("//a[@class='button xs-width-full xs-my04 sm-w50p md-w70p lg-w60p']")
+    send_keys_to_xpath("//input[@id='login-email']", email)
+    send_keys_to_xpath("//input[@id='login-password']", password)
+    click_xpath_element("//input[@value='Sign in']")
+
 # date picker ...................
 def calender_page(valid_date: datetime):
     click_xpath_element("//input[@id='js-validity_start-p_5131']")
@@ -127,6 +153,7 @@ def time_slot_selector(req_time: datetime.time) -> str:
         try:
             driver.execute_script("arguments[0].scrollIntoView(true);", element)
             element.click()
+            # print(element.get_attribute("data-available_qty"))
             return int(element.get_attribute("data-available_qty"))
         except:
             try:
@@ -146,57 +173,46 @@ def time_slot_selector(req_time: datetime.time) -> str:
 def tickets_needed(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int) -> int:
     return no_of_adult + no_of_paid_child + no_of_free_child
 
-def select_tickets(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int) -> bool:
-        # time.sleep(2)
+def select_tickets(no_of_adult: int, no_of_paid_child: int, no_of_free_child: int, available_tickets: int, no_of_tickets_needed: int) -> bool:
+    if (available_tickets >= no_of_tickets_needed):
         send_keys_to_xpath("//input[@name='sku_qty_20410']", no_of_adult)
-        # time.sleep(2)
         send_keys_to_xpath("//input[@name='sku_qty_20408']", no_of_paid_child)
-        # time.sleep(2)
         send_keys_to_xpath("//input[@name='sku_qty_20556']", no_of_free_child)
         return True
-    # else:
-    #     print("number of Tickets not available")
-    #     exit()
-        
-def create_account(email: str, password: str, uname_first: str, uname_last: str):
-    # click_xpath_element("//input[contains(@id,'auth_1') and contains(@class,'checkbox')]")
-    click_xpath_element("//label[contains(text(),'I declare to be of legal age, to have read and und')]")
-    send_keys_to_xpath("//input[@id='register-email']", email)
-    send_keys_to_xpath("//input[@id='register-password']", password)
-    send_keys_to_xpath("//input[@id='register-password2']", password)
-    click_xpath_element("//input[@value='Create account']")
-    send_keys_to_xpath("//input[@name='first_name']", uname_first)
-    send_keys_to_xpath("//input[@name='last_name']", uname_last)
-    click_xpath_element("//button[normalize-space()='Save']")
-    alert = driver.switch_to_alert()
-    alert.accept()
+    else:
+        print("number of Tickets not available")
+        return False
 
-click_xpath_element("//*[@id='site-cookies']/button")
-valid_date = is_datetime_valid("2021-06-27 15:00:00")
-product_existence("Tickets", "Brunelleschi's Dome")
-time.sleep(5)
-date_picker(valid_date)
-req_time = get_time(valid_date)
-print(type(req_time))
-# exit()
-time.sleep(3)
-send_keys_to_xpath("//input[@name='sku_qty_20410']", 0)
-# click_xpath_element("//input[@name='sku_qty_20410']")
-no_of_available_tickets = time_slot_selector(req_time)
-print(no_of_available_tickets)
+def main():
+    click_xpath_element("//*[@id='site-cookies']/button")
+    valid_date = is_datetime_valid("2021-06-29 17:15:00")
+    product_existence("Tickets", "Brunelleschi's Dome")
+    time.sleep(5)
+    date_picker(valid_date)
+    req_time = get_time(valid_date)
+    print(type(req_time))
+    # exit()
+    send_keys_to_xpath("//input[@name='sku_qty_20410']", 0)
+    no_of_available_tickets = time_slot_selector(req_time)
+    print(no_of_available_tickets)
 
-no_of_req_tickets = tickets_needed(1, 2, 3)
-print(no_of_req_tickets)
+    no_of_req_tickets = tickets_needed(1, 2, 0)
+    print(no_of_req_tickets)
 
+    # if (no_of_available_tickets >= no_of_req_tickets):
+    select_tickets(1, 2, 0, no_of_available_tickets, no_of_req_tickets)
 
-if (no_of_available_tickets >= no_of_req_tickets):
     try:
-        select_tickets(1, 0, 0)
         click_link_element("Add to Cart")    
     except:
         print("Desired Quantity not available")
     else:
         click_link_element("Go to Cart")
-        click_xpath_element("//div[@id='btn-checkout']")    
-    # 
-    create_account("e@gmail.com", "12345", "b", "b")
+        click_xpath_element("//div[@id='btn-checkout']")   
+    time.sleep(4)
+    login_account("k@gmail.com", "12345")
+    click_xpath_element("//button[normalize-space()='Save and continue']")
+    click_xpath_element("//div[@class='buy-button button xs-width-full xs-block xs-mt1 xs-mb3 xs-mx-auto md-w50p lg-mt0 lg-mb2 lg-width-full js-register-payment']")
+
+if __name__ == "__main__":
+    main()
