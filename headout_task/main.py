@@ -121,13 +121,14 @@ def date_picker(valid_date: str):
     select_date(valid_date)
 
 # time slot selector.............
-def time_slot_selector(req_time: datetime.time):
+def time_slot_selector(req_time: datetime.time) -> str:
     try:
         element = driver.find_element_by_xpath("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
         try:
             driver.execute_script("arguments[0].scrollIntoView(true);", element)
             element.click()
-            print(element.get_attribute("data-available_qty"))
+            # print(element.get_attribute("data-available_qty"))
+            return element.get_attribute("data-available_qty")
         except:
             try:
                 button = driver.find_element_by_xpath("//div[contains(text(),'Next')]")
@@ -135,11 +136,13 @@ def time_slot_selector(req_time: datetime.time):
                 button.click()
                 time.sleep(3)
                 actions.move_to_element(element).click().perform()
+                return element.get_attribute("data-available_qty")
             except:
                 print("All slots booked")
                 exit()
     except:
         print("Please Enter exact available time")
+        exit()
 
 
 click_xpath_element("//*[@id='site-cookies']/button")
@@ -151,7 +154,11 @@ req_time = get_time(valid_date)
 print(type(req_time))
 # exit()
 send_keys_to_xpath("//input[@name='sku_qty_20410']", "1")
-time_slot_selector(req_time)
+n = time_slot_selector(req_time)
+print(n)
+
+
+
 # select time > calculate availabitly > if yes > send keys
 
 # element = click_xpath_element("//li[contains(@class, 'gc xs-gc12 pointer js-booking-clickable') and contains(@data-time_from, '{}')]".format(req_time))
