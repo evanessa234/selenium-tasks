@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 import time
@@ -9,8 +10,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from datetime import date, datetime
 
 opts=webdriver.ChromeOptions()
-opts.headless=False
-
+opts.add_argument('--headless')
+opts.add_argument('window-size=1920x1080')
+# driver = webdriver.Chrome(ChromeDriverManager().install())
 driver = webdriver.Chrome(ChromeDriverManager().install(), options=opts)
 driver.maximize_window()
 actions = ActionChains(driver)
@@ -204,7 +206,7 @@ def main():
     print(no_of_req_tickets)
 
     # if (no_of_available_tickets >= no_of_req_tickets):
-    select_tickets(1, 2, 0, no_of_available_tickets, no_of_req_tickets)
+    select_tickets(2, 3, 0, no_of_available_tickets, no_of_req_tickets)
 
     try:
         click_link_element("Add to Cart")    
@@ -220,7 +222,6 @@ def main():
     click_xpath_element("//div[@class='buy-button button xs-width-full xs-block xs-mt1 xs-mb3 xs-mx-auto md-w50p lg-mt0 lg-mb2 lg-width-full js-register-payment']")
     # driver.get(url)
     time.sleep(4)
-    driver.save_screenshot("final_result.png")
-    driver.close()
+    driver.save_screenshot("headless_final_result.png")
 if __name__ == "__main__":
     main()
